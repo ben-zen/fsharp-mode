@@ -1,118 +1,89 @@
-# F# Language Support for Open Editors
+# Experimental support for Intellisense in Emacs
 
-This project contains advanced editing support for F# for a number of open editors
-* MonoDevelop
-* Emacs (in progress)
-* Vim (in progress)
+## December 2012
 
-For more information about F# see [The F# Software Foundation](http://fsharp.org). Join [The F# Open Source Group](http://fsharp.github.com). We use [github](https://github.com/fsharp/fsharpbinding) for tracking work items and suggestions.
+Removed old intellisense approach. File manifest now as follows:
 
+intelli_tip.el             - old tooltip generation, currently disabled
+intellisense2.el           - new intellisense, uses autocomplete
+readme-intellisense.txt    - this file
+test.fs                    - simple small test script, to be moved
+test.py                    - python script for feeding in test scripts
 
-## Basic Components
-
-The core component is the FSharp.CompilerBinding.dll. This is used by both fsautocomplete.exe, a command-line utility to sit behind Emacs, Vim and other editing environments, an the MonoDevelop components.
-
-### Basic Components - Building
-
-	./configure.sh
-	make
-
-This produces bin/FSharp.CompilerBinding.dll and bin/fsautocomplete.exe. To understand how to use these components, see the other projects.
-
-## MonoDevelop support
-
-Adds open source F# support to the open source editor MonoDevelop. Features:
-* Code completion
-* Syntax highlighting
-* Tooltips
-* Debugging 
-* Target .NET 3.5, 4.0, 4.5
-* F# Interactive scripting (Alt-Enter execution)
-* Templates (Console Application, Library, Tutorial Project, Gtk Project, Web Programming)
-* Makefile support
-* Supports F# 3.0 type providers (requires F# 3.0)
-* xbuild support for Visual Studio .fsproj and .sln files without change (requires Mono 3.0 and F# 3.0)
-* MonoDevelop also includes C# 5.0 and other features
-
-Requires MonoDevelop 3.0 and later versions
-
-### Installation
-
-[Install F#](http://fsharp.org). Then install the F# Language Binding via the MonoDeveop Add-in manager.
-
-   MonoDevelop 
-        --> Add-in manager 
-        --> Gallery
-        --> Language Bindings 
-        --> F# Language Binding
-
-### Using the ASP.NET MVC 4 Template
-
-On Windows, you need to install ASP.NET MVC 4 from [here](http://www.microsoft.com/en-us/download/details.aspx?id=30683). 
-You can then create a project from the template, build it, and run. 
-
-On Mac and Linux the template includes a copy of the basic ASP.NET MVC 4 core DLLs.
-
-### Building and installing from scratch
-
-Normally you should get the binding from the repository. If you want to build and install it yourself and develop it, try this:
-
-	cd monodevelop
-	./configure.sh
-	make 
-	make install
-
-### Can't get it to work?  
-
-Don't give up! Add an issue to [the issue tracker](https://github.com/fsharp/fsharpbinding/issues). You issue will be seen by the developers.
-
-### Notes for Developers
-
-To check things are working try a few different things somewhat at random:
-  - Check the F# templates are appearing
-  - Create a console project (NOTE: retarget it to .NET 4.0 using right-click->options->General)
-  - Check there are completion lists in the console project e.g. for 'System.' and 'System.Console.WriteLine(' and 'List.'
-  - Check you can build the console project
-  - Check you can run the console project
-  - Check you can "debug-step-into" the console project
-  - Check you can set a break point in the console project
-  - Check there are type tips showing when you move the mouse over code identifiers
-  - Load an existing .fsproj (e.g. see MonoDevelop.FSharpBinding/tests/projects/...) and check if completion works etc.
-  - Run xbuild on a few .fsproj (this is nothing to do with the binding, it is just fsharp/fsharp)
-
-There are a couple of known issues, see https://github.com/fsharp/fsharpbinding/issues.
-
-On windows, use the file MonoDevelop.FSharpBinding\MonoDevelop.FSharp.windows.fsproj. Be aware that this is not the original file, which is MonoDevelop.FSharp.orig.  The windows file is created automatically now and then to help development on Windows.
-
-On Mac/Linux, please develop using  the 'Makefile' with Mono 3.0 and FSharp 3.0. There is an old Makefile for the days before xbuild works, but this is not used to prepare distributions.
-
-If you make changes to the binding, then loss of completion lists etc. can be disturbing and hard to debug. There are some debugging techniques. To launch MD you can use
-   /Applications/MonoDevelop.app/Contents/MacOS/MonoDevelop --new-window --no-redirect
-
-To enable some logging you can use
-  export FSHARPBINDING_LOGGING=*
+-- Robin Neatherway
 
 
-## Notes for People Preparing Releases
+## October 2012
 
-The addin gets released to http://addins.monodevelop.com under project 'FSharp' (project index 48). Contact @sega, @tpetricek or @funnelweb to make an update.
+This code has been imported with minor changes from Sourceforge. There are some caveats.
 
-To build the .mpack files to upload to this site, use:
+1. There are dependencies on esense, and tooltip-help.el. Modified versions are present in this directory (intellisense.el and intelli_tip.el respectively).
 
-	cd monodevelop
-	./configure.sh
-	make packs
+2. Communication between emacs and the fsintellisense.exe subprocess are working, but the results are not always interpreted correctly.
 
-The files go under pack/...
+I intend to update the code to remove the dependencies above, using autocomplete instead of esense, and emacs' builtin tooltips. In the fullness of time, multi-file projects should also be supported.
 
-The build process builds several versions of the addin for specific different versions of MonoDevelop.  MonoDevelop APIs can 
-change a bit and are not binary compatible. We try to keep up with 
-  (a) the latest version available as an Ubuntu package
-  (b) the latest version available in the 'Stable' channel on Windows and Mac
-  (c) the latest version available in the 'Beta' channel on Windows and Mac
+-- Robin Neatherway
 
-When developing generally use (c)
 
-The build is performed against the MonoDevelop binaries we depend on in dependencies/..., which have been 
-snarfed from MonoDevelop installs.
+## February 2011
+
+
+
+## Getting started
+
+
+1. fsintellisense.exe is a program which communicates with F# compiler to
+get all the Intellisense information. The first step is to make sure you
+can run it. When you execute it, it should read commands on standard
+input. Enter a random line and you should get "ERROR: Unknown command or
+wrong arguments".
+
+If you get an exception, you can copy FSharp.Compiler.dll and
+FSharp.Compiler.Server.Shared.dll from F# (November release) into current
+directory.
+
+2. Edit intellisense.el and edit the intellisense-wrapper value to the actual
+path.
+
+3. Load intellisense.el <kbd>M-x load-file</kbd>
+
+4. Open a F# buffer. Then <kbd>M-x start-intellisense</kbd> will run
+fsintellisense.exe in background. You can play with those (temporary)
+bindings:
+  F1: display a tool-tip at point
+  F2: do completion (also appears when you enter a dot)
+  F4: display error messages from compiler
+
+
+## Recompiling fsintellisense.exe
+
+Here is the command-line I use:
+  `fsc.exe fsharpcompiler.fs tipFormatter.fs parser.fs program.fs -r "FSharp.Powerpack.dll"`
+
+
+
+## Documentation
+
+fsintellisense.exe is a modified version of the Compiler example you can
+get here:
+
+    http://fsxplat.codeplex.com
+
+In particular, this documentation is very useful:
+
+   http://fsxplat.codeplex.com/wikipage?title=fsharp%20intellisense%20tool&referringTitle=Home
+
+
+
+## Bugs / Limitations / TODO
+
+- It's not yet possible to add references (external dll files). I think
+  the fsintellisense already handles it, so it should be easy to add.
+
+- Completion works only on current buffer. We need a way to specify a
+  project and give a list of source files.
+
+- Error messages are not reported. We should display them in the code
+  (underline errors in the buffer?)
 
